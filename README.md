@@ -167,12 +167,24 @@ deeper on why the design is shaped the way it is.
 
 ## Author
 
-**Himanshu Ramavat**
-
-- Website: [himanshuramavat.in](https://himanshuramavat.in/)
-- LinkedIn: [himanshu-ramavat](https://www.linkedin.com/in/himanshu-ramavat)
-- GitHub: [himanshuramavat](https://github.com/himanshuramavat)
-- X: [@iamhimanshu_7](https://x.com/iamhimanshu_7)
+<p align="center">
+  <strong>Himanshu Ramavat</strong><br /><br />
+  <a href="https://himanshuramavat.in/" title="Website">
+    <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/globe.svg" width="26" height="26" alt="Website" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.linkedin.com/in/himanshu-ramavat" title="LinkedIn">
+    <img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="26" height="26" alt="LinkedIn" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/himanshuramavat" title="GitHub">
+    <img src="https://cdn.simpleicons.org/github/181717" width="26" height="26" alt="GitHub" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://x.com/iamhimanshu_7" title="X">
+    <img src="https://cdn.simpleicons.org/x/000000" width="26" height="26" alt="X" />
+  </a>
+</p>
 
 ## Disclaimer
 

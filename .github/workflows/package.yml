@@ -1,0 +1,60 @@
+name: Package extension ZIPs
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Build and archive both browser targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # These are optional. Without them, the ZIPs still build, but Google Drive
+    # sign-in is omitted from the Chromium manifest and unavailable to Firefox.
+    env:
+      SNAPDOCK_GOOGLE_CLIENT_ID: ${{ secrets.SNAPDOCK_GOOGLE_CLIENT_ID }}
+      SNAPDOCK_GOOGLE_CLIENT_ID_FIREFOX: ${{ secrets.SNAPDOCK_GOOGLE_CLIENT_ID_FIREFOX }}
+      SNAPDOCK_EXTENSION_KEY: ${{ secrets.SNAPDOCK_EXTENSION_KEY }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify and build Chrome and Firefox targets
+        run: npm run verify
+
+      - name: Create store-ready ZIP archives
+        run: npm run package
+
+      - name: Validate archive contents
+        run: |
+          unzip -t web-ext-artifacts/snapdock-*-chrome.zip
+          unzip -t web-ext-artifacts/snapdock-*-firefox.zip
+          unzip -Z1 web-ext-artifacts/snapdock-*-chrome.zip | grep -qx manifest.json
+          unzip -Z1 web-ext-artifacts/snapdock-*-firefox.zip | grep -qx manifest.json
+
+      - name: Upload Chrome and Firefox ZIPs
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapdock-${{ github.ref_name }}
+          path: web-ext-artifacts/*.zip
+          if-no-files-found: error
+          retention-days: 30
