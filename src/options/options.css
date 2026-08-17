@@ -1,0 +1,225 @@
+body {
+  background: var(--sd-bg-subtle);
+}
+
+.sd-options {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 34px 24px 72px;
+}
+
+.sd-options__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.sd-options__title {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sd-options__tagline {
+  font-size: 12px;
+  color: var(--sd-text-subtle);
+  letter-spacing: 0.02em;
+}
+
+.sd-panel {
+  background: var(--sd-surface);
+  border: 1px solid var(--sd-border);
+  border-radius: var(--sd-radius-lg);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.sd-panel__head {
+  padding: 15px 18px 13px;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.sd-panel__title {
+  font-size: 14px;
+  font-weight: 620;
+  margin: 0;
+}
+
+.sd-panel__desc {
+  font-size: 12px;
+  color: var(--sd-text-muted);
+  margin: 3px 0 0;
+  line-height: 1.5;
+}
+
+.sd-panel__body {
+  padding: 6px 18px 14px;
+}
+
+/* Setting rows ------------------------------------------------------------ */
+
+.sd-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 16px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.sd-setting:last-child {
+  border-bottom: none;
+}
+
+.sd-setting--stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sd-setting--switch {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.sd-setting__label {
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.sd-setting__desc {
+  font-size: 11.5px;
+  color: var(--sd-text-muted);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.sd-setting__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* The stacked grid row already supplies its own gap, so no extra top margin. */
+.sd-setting__control--full {
+  justify-content: stretch;
+  margin-top: 0;
+}
+
+.sd-value {
+  font-family: var(--sd-font-mono);
+  font-size: 11.5px;
+  color: var(--sd-text-muted);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* Filename preview -------------------------------------------------------- */
+
+.sd-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.sd-token {
+  font-family: var(--sd-font-mono);
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--sd-border);
+  background: var(--sd-bg-sunken);
+  color: var(--sd-text-muted);
+  cursor: pointer;
+  transition: all var(--sd-transition);
+}
+
+.sd-token:hover {
+  border-color: var(--sd-accent-border);
+  background: var(--sd-accent-soft);
+  color: var(--sd-accent);
+}
+
+.sd-preview-name {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border-radius: var(--sd-radius);
+  background: var(--sd-bg-sunken);
+  border: 1px solid var(--sd-border);
+  font-family: var(--sd-font-mono);
+  font-size: 12px;
+  color: var(--sd-text);
+  word-break: break-all;
+}
+
+/* Presets ----------------------------------------------------------------- */
+
+.sd-preset-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.sd-preset-card:last-child {
+  border-bottom: none;
+}
+
+.sd-preset-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sd-preset-card__name {
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.sd-preset-card__meta {
+  font-size: 11.5px;
+  color: var(--sd-text-muted);
+  margin-top: 2px;
+}
+
+.sd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--sd-text);
+  color: var(--sd-bg);
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: var(--sd-shadow-lg);
+  z-index: 50;
+}
+
+.sd-options__footer {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sd-border);
+}
+
+.sd-footer-note {
+  font-size: 11.5px;
+  color: var(--sd-text-subtle);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 620px) {
+  .sd-setting,
+  .sd-setting--switch {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sd-setting__control {
+    justify-content: flex-start;
+  }
+}

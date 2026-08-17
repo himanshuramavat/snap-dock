@@ -1,0 +1,26 @@
+node_modules/
+dist/
+dist-firefox/
+store-assets/
+docs/
+
+coverage/
+web-ext-artifacts/
+*.local
+
+# Build configuration: your own Google Cloud OAuth client ids and extension key.
+.env
+.env.*
+!.env.example
+
+# Extension signing material. Never commit.
+*.pem
+*.crx
+key.pem
+
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+

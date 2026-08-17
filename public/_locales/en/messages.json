@@ -1,0 +1,80 @@
+{
+  "extensionName": {
+    "message": "SnapDock",
+    "description": "Extension name shown in the browser toolbar and web store. A product name, keep untranslated."
+  },
+  "extensionDescription": {
+    "message": "Capture. Configure. Save. High-quality screenshots and PDFs, saved to your device or straight to Google Drive.",
+    "description": "Extension description for the web store listing. Keep 'SnapDock' and 'Google Drive' untranslated as brand names."
+  },
+  "extensionTitle": {
+    "message": "SnapDock: Capture. Configure. Save.",
+    "description": "Tooltip title shown when hovering the toolbar icon."
+  },
+  "commandCaptureVisible": {
+    "message": "Capture visible area and save",
+    "description": "Keyboard shortcut description listed on the browser's shortcuts page."
+  },
+  "commandCaptureFullPage": {
+    "message": "Capture full page and save",
+    "description": "Keyboard shortcut description listed on the browser's shortcuts page."
+  },
+  "commandCaptureRegion": {
+    "message": "Capture a selected region",
+    "description": "Keyboard shortcut description listed on the browser's shortcuts page."
+  },
+  "whatsNew": {
+    "message": "What's New",
+    "description": "Title of the changelog page, shown in the tab and as its heading."
+  },
+  "subtitleDefault": {
+    "message": "Track how SnapDock has evolved. Each release below highlights the most important improvements shipped to you.",
+    "description": "Changelog page subtitle shown when opened after an update."
+  },
+  "subtitleWelcome": {
+    "message": "Welcome to SnapDock. Here is everything it can do, and everything that has changed since.",
+    "description": "Changelog page subtitle shown when opened right after a fresh install."
+  },
+  "versionLabel": {
+    "message": "Version",
+    "description": "Label preceding a version number on the changelog timeline, as in 'Version 1.0.0'."
+  },
+  "latest": {
+    "message": "Latest",
+    "description": "Badge on the newest release in the changelog timeline."
+  },
+  "privacyShort": {
+    "message": "Privacy",
+    "description": "Short link text in the changelog page footer, pointing to the privacy policy."
+  },
+  "footerMeta": {
+    "message": "SnapDock · © $YEAR$ Himanshu Ramavat",
+    "description": "Copyright line in the changelog page footer. $YEAR$ is the current year.",
+    "placeholders": {
+      "year": {
+        "content": "$1",
+        "example": "2026"
+      }
+    }
+  },
+  "socialLinksAriaLabel": {
+    "message": "Himanshu Ramavat on social platforms",
+    "description": "Accessible label for the group of social links on the changelog page."
+  },
+  "websiteAriaLabel": {
+    "message": "Website",
+    "description": "Accessible label for the personal website link on the changelog page."
+  },
+  "linkWhatsNew": {
+    "message": "What's New",
+    "description": "Popup link opening the changelog page."
+  },
+  "linkGitHub": {
+    "message": "GitHub",
+    "description": "Popup link opening the project's source repository."
+  },
+  "linkPrivacyPolicy": {
+    "message": "Privacy Policy",
+    "description": "Popup link opening the privacy policy."
+  }
+}

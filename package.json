@@ -1,0 +1,48 @@
+{
+  "name": "snap-dock",
+  "version": "1.0.0",
+  "description": "SnapDock: Capture. Configure. Save. High-quality screenshot and PDF capture for Chrome, saved straight to Google Drive.",
+  "author": "Himanshu Ramavat",
+  "homepage": "https://github.com/himanshuramavat/snap-dock",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/himanshuramavat/snap-dock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/himanshuramavat/snap-dock/issues"
+  },
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npm run clean && npm run build:background && npm run build:content && vite build --mode development --watch",
+    "build": "npm run clean && npm run build:pages && npm run build:background && npm run build:content && npm run build:targets",
+    "build:pages": "vite build",
+    "build:content": "vite build --config vite.content.config.ts",
+    "clean": "node -e \"const f=require('node:fs');for (const d of ['dist','dist-firefox']) f.rmSync(d,{recursive:true,force:true})\"",
+    "keygen": "node scripts/generate-key.mjs",
+    "icons": "node scripts/generate-icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "npm run typecheck && npm run test && npm run build",
+    "build:background": "vite build --config vite.background.config.ts",
+    "package": "node scripts/package.mjs",
+    "build:targets": "node --experimental-strip-types scripts/targets.mjs",
+    "lint:firefox": "npx --yes web-ext@latest lint --source-dir=dist-firefox"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.2.6",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}

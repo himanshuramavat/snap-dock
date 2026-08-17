@@ -1,0 +1,101 @@
+/*
+ * SnapDock design tokens.
+ *
+ * One neutral ramp, one accent, and a small set of semantic aliases. Everything in
+ * the UI resolves to these, so light and dark stay in step and there is exactly one
+ * place to adjust the visual identity.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Neutrals */
+  --sd-bg: #ffffff;
+  --sd-bg-subtle: #f8fafc;
+  --sd-bg-sunken: #f1f5f9;
+  --sd-surface: #ffffff;
+  --sd-border: #e2e8f0;
+  --sd-border-strong: #cbd5e1;
+
+  --sd-text: #0f172a;
+  --sd-text-muted: #64748b;
+  --sd-text-subtle: #94a3b8;
+  --sd-text-inverse: #ffffff;
+
+  /* Accent */
+  --sd-accent: #dc2626;
+  --sd-accent-hover: #b91c1c;
+  --sd-accent-active: #991b1b;
+  --sd-accent-soft: #fef2f2;
+  --sd-accent-border: #fecaca;
+
+  /* Status */
+  --sd-success: #16a34a;
+  --sd-success-soft: #f0fdf4;
+  --sd-success-border: #bbf7d0;
+  /*
+   * Deliberately a deeper, cooler burgundy rather than the brand red. With red as
+   * the primary colour, an error tinted the same hue as the "Capture & Save" button
+   * would read as the same signal. Errors also always carry an alert icon and a soft
+   * tint, never a solid fill, so hue and treatment both separate them.
+   */
+  --sd-danger: #9f1239;
+  --sd-danger-soft: #fff1f2;
+  --sd-danger-border: #fecdd3;
+  --sd-warning: #b45309;
+  --sd-warning-soft: #fffbeb;
+  --sd-warning-border: #fde68a;
+
+  /* Shape */
+  --sd-radius-sm: 6px;
+  --sd-radius: 9px;
+  --sd-radius-lg: 12px;
+
+  --sd-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --sd-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
+  --sd-shadow-lg: 0 12px 32px rgb(15 23 42 / 0.14);
+
+  --sd-focus: 0 0 0 3px rgb(220 38 38 / 0.35);
+
+  --sd-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --sd-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --sd-transition: 130ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sd-bg: #0b1120;
+    --sd-bg-subtle: #0f172a;
+    --sd-bg-sunken: #111c33;
+    --sd-surface: #131f36;
+    --sd-border: #1e2d4a;
+    --sd-border-strong: #2d4166;
+
+    --sd-text: #f1f5f9;
+    --sd-text-muted: #94a3b8;
+    --sd-text-subtle: #64748b;
+    --sd-text-inverse: #0b1120;
+
+    --sd-accent: #ef4444;
+    --sd-accent-hover: #f87171;
+    --sd-accent-active: #fca5a5;
+    --sd-accent-soft: #2c1416;
+    --sd-accent-border: #5c2226;
+
+    --sd-success: #4ade80;
+    --sd-success-soft: #0e2a1b;
+    --sd-success-border: #17512f;
+    --sd-danger: #fb7185;
+    --sd-danger-soft: #3f0a1a;
+    --sd-danger-border: #6b1230;
+    --sd-warning: #fbbf24;
+    --sd-warning-soft: #2a1f08;
+    --sd-warning-border: #573f11;
+
+    --sd-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --sd-shadow: 0 4px 12px rgb(0 0 0 / 0.45);
+    --sd-shadow-lg: 0 12px 32px rgb(0 0 0 / 0.55);
+  }
+}

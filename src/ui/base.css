@@ -1,0 +1,455 @@
+@import './tokens.css';
+
+/* Reset ------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--sd-font);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sd-text);
+  background: var(--sd-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* A single, consistent focus treatment. Visible for keyboard users, out of the
+   way for pointer users: accessibility without visual noise. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--sd-focus);
+  border-radius: var(--sd-radius-sm);
+}
+
+/* Buttons ----------------------------------------------------------------- */
+
+.sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  height: 34px;
+  border-radius: var(--sd-radius);
+  border: 1px solid var(--sd-border);
+  background: var(--sd-surface);
+  color: var(--sd-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--sd-transition),
+    border-color var(--sd-transition),
+    color var(--sd-transition);
+}
+
+.sd-btn:hover:not(:disabled) {
+  background: var(--sd-bg-sunken);
+  border-color: var(--sd-border-strong);
+}
+
+.sd-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sd-btn--primary {
+  background: var(--sd-accent);
+  border-color: var(--sd-accent);
+  color: #ffffff;
+}
+
+.sd-btn--primary:hover:not(:disabled) {
+  background: var(--sd-accent-hover);
+  border-color: var(--sd-accent-hover);
+}
+
+.sd-btn--primary:active:not(:disabled) {
+  background: var(--sd-accent-active);
+}
+
+.sd-btn--danger {
+  color: var(--sd-danger);
+  border-color: var(--sd-danger-border);
+  background: var(--sd-danger-soft);
+}
+
+.sd-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--sd-text-muted);
+}
+
+.sd-btn--ghost:hover:not(:disabled) {
+  background: var(--sd-bg-sunken);
+  border-color: transparent;
+  color: var(--sd-text);
+}
+
+.sd-btn--lg {
+  height: 42px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  border-radius: var(--sd-radius-lg);
+}
+
+.sd-btn--sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.sd-btn--block {
+  width: 100%;
+}
+
+.sd-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--sd-radius-sm);
+  background: transparent;
+  color: var(--sd-text-muted);
+  cursor: pointer;
+  transition: background var(--sd-transition), color var(--sd-transition);
+}
+
+.sd-icon-btn:hover {
+  background: var(--sd-bg-sunken);
+  color: var(--sd-text);
+}
+
+/* Segmented control ------------------------------------------------------- */
+
+.sd-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+  padding: 3px;
+  background: var(--sd-bg-sunken);
+  border-radius: var(--sd-radius);
+  border: 1px solid var(--sd-border);
+}
+
+.sd-segmented__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  border-radius: var(--sd-radius-sm);
+  background: transparent;
+  color: var(--sd-text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--sd-transition), color var(--sd-transition);
+}
+
+.sd-segmented__option:hover:not([aria-checked='true']) {
+  color: var(--sd-text);
+}
+
+.sd-segmented__option[aria-checked='true'] {
+  background: var(--sd-surface);
+  color: var(--sd-accent);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+.sd-segmented--compact .sd-segmented__option {
+  flex-direction: row;
+  padding: 6px 4px;
+}
+
+/* Left-aligned variant, used in settings rows where the labels are long enough that
+   centring them reads as arbitrary. `nowrap` matters as much as the alignment: a
+   wrapped "Google Drive" is what made the centred version look broken. */
+.sd-segmented--start .sd-segmented__option {
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
+/* Surfaces ---------------------------------------------------------------- */
+
+.sd-card {
+  border: 1px solid var(--sd-border);
+  border-radius: var(--sd-radius-lg);
+  background: var(--sd-surface);
+  padding: 12px;
+}
+
+.sd-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sd-text-subtle);
+  margin-bottom: 7px;
+}
+
+.sd-hint {
+  font-size: 11.5px;
+  color: var(--sd-text-muted);
+  line-height: 1.45;
+}
+
+.sd-mono {
+  font-family: var(--sd-font-mono);
+  font-size: 11.5px;
+}
+
+/* Form controls ----------------------------------------------------------- */
+
+.sd-input,
+.sd-select {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--sd-border);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface);
+  color: var(--sd-text);
+  font-size: 13px;
+  transition: border-color var(--sd-transition);
+}
+
+.sd-input:hover,
+.sd-select:hover {
+  border-color: var(--sd-border-strong);
+}
+
+.sd-select {
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.sd-range {
+  width: 100%;
+  accent-color: var(--sd-accent);
+}
+
+.sd-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--sd-border-strong);
+  cursor: pointer;
+  transition: background var(--sd-transition);
+}
+
+.sd-switch[aria-checked='true'] {
+  background: var(--sd-accent);
+}
+
+.sd-switch::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: var(--sd-shadow-sm);
+  transition: transform var(--sd-transition);
+}
+
+.sd-switch[aria-checked='true']::after {
+  transform: translateX(16px);
+}
+
+/* Progress ---------------------------------------------------------------- */
+
+.sd-progress {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--sd-bg-sunken);
+  overflow: hidden;
+}
+
+.sd-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--sd-accent);
+  transition: width 180ms ease-out;
+}
+
+/* Indeterminate: a travelling bar rather than a fake percentage, because
+   claiming "62%" for an operation we cannot measure is worse than saying so. */
+.sd-progress--indeterminate .sd-progress__fill {
+  width: 35%;
+  animation: sd-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes sd-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.sd-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: sd-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Banners ----------------------------------------------------------------- */
+
+.sd-banner {
+  display: flex;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: var(--sd-radius);
+  border: 1px solid var(--sd-border);
+  background: var(--sd-bg-subtle);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.sd-banner__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sd-banner--error {
+  background: var(--sd-danger-soft);
+  border-color: var(--sd-danger-border);
+  color: var(--sd-danger);
+}
+
+.sd-banner--warning {
+  background: var(--sd-warning-soft);
+  border-color: var(--sd-warning-border);
+  color: var(--sd-warning);
+}
+
+.sd-banner--success {
+  background: var(--sd-success-soft);
+  border-color: var(--sd-success-border);
+  color: var(--sd-success);
+}
+
+/*
+ * Info banners are neutral, not accent-tinted. With a red brand colour an "info"
+ * message rendered in red would both misread as an error and be nearly
+ * indistinguishable from the real error banner beside it.
+ */
+.sd-banner--info {
+  background: var(--sd-bg-subtle);
+  border-color: var(--sd-border);
+  color: var(--sd-text-muted);
+}
+
+/* Standing links ---------------------------------------------------------- */
+
+.sd-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sd-links__item {
+  color: var(--sd-accent);
+  font-size: 11.5px;
+  text-decoration: none;
+}
+
+.sd-links__item:hover {
+  text-decoration: underline;
+}
+
+.sd-links__dot {
+  color: var(--sd-text-subtle);
+  font-size: 11.5px;
+}
+
+/* Utilities --------------------------------------------------------------- */
+
+.sd-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-row {
+  display: flex;
+  align-items: center;
+}
+
+.sd-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
