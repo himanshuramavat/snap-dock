@@ -1,6 +1,5 @@
 import type { ConnectionStatus, ProviderId, RemoteFolder, UploadedFile } from '@/types';
-import { AppError, toAppError } from '@/utils/errors';
-import { base64FromBytes } from '@/image/canvas';
+import { AppError } from '@/utils/errors';
 import { sanitizeBasename } from '@/filename/sanitize';
 import type {
   ConnectOptions,
@@ -18,10 +17,14 @@ import type {
  *
  * Two platform constraints shape everything here:
  *
- *  1. `URL.createObjectURL` does not exist in a service worker, so the blob cannot be
- *     handed to the downloads API as a blob URL. It is base64-encoded into a data URL
- *     instead. That costs ~37% extra memory transiently, which measures at roughly
- *     5 ms per megabyte, so it is not worth adding an offscreen document to avoid.
+ *  1. `chrome.downloads.download` refuses `data:` URLs in Manifest V3 service workers
+ *     with an `Access denied for URL data:…` error, regardless of origin or content
+ *     type. A blob URL must be handed to the API instead. `URL.createObjectURL` and
+ *     `URL.revokeObjectURL` are available in service workers from Chrome 121 and
+ *     Firefox 121, both comfortably below the manifest's `minimum_chrome_version: 116`
+ *     and `strict_min_version: 140` floors, so no extra permission or fallback is
+ *     needed. The URL is revoked as soon as the download has reached a terminal
+ *     state, so the captured bytes do not outlive the save.
  *
  *  2. Chrome can only write inside the user's download directory, and only via a
  *     *relative* path: absolute paths, empty paths and paths containing '..' are
@@ -44,10 +47,16 @@ import type {
  *  - The combined relative path is length-capped, because Windows still enforces a
  *    260-character limit on the full path for many APIs and the download directory
  *    itself consumes part of that budget.
+ *  - Sub-folder creation is platform-dependent. Windows and Linux create missing
+ *    sub-directories of the Downloads root as a side-effect of opening the destination
+ *    file, so the API happily writes into a folder that did not exist a moment earlier.
+ *    macOS does not: Chromium's path reservation (`PathValidationResult::PATH_NOT_WRITABLE`
+ *    upstream) refuses to materialise intermediate directories, so an unwritable or
+ *    unavailable sub-folder surfaces as a generic `FILE_FAILED` interruption that the
+ *    user would otherwise read as "your Downloads folder is gone". The interruption is
+ *    re-classified below so the message points at the sub-folder specifically rather
+ *    than blaming the whole Downloads directory.
  */
-
-/** Chrome's own ceiling for a download URL is generous but not unlimited. */
-const MAX_DATA_URL_BYTES = 200 * 1024 * 1024;
 
 const DOWNLOADS_LABEL = 'Downloads';
 
@@ -139,62 +148,51 @@ export class LocalProvider implements StorageProvider {
   /* ----------------------------------------------------------------- save */
 
   async uploadFile(request: UploadRequest): Promise<UploadedFile> {
-    if (request.blob.size > MAX_DATA_URL_BYTES) {
-      throw new AppError('PAGE_TOO_LARGE', {
-        details: `${request.blob.size} bytes exceeds the local save limit`,
-        userMessage:
-          'That capture is too large to save in one file. Try a lower scale or the JPEG format.',
-      });
-    }
-
     // Chrome requires a relative path and rejects absolute paths, empty paths and
     // anything containing '..'. Forward slashes are correct on every platform.
     const filename = buildRelativePath(request.folderId ?? '', request.filename);
 
     request.onProgress?.(0, request.blob.size);
 
-    const dataUrl = await this.toDataUrl(request.blob, request.mimeType);
+    // Blob URL, not a data: URL: chrome.downloads rejects data: URLs in MV3 with
+    // `Access denied`. Revoke after the download reaches a terminal state.
+    const blobUrl = URL.createObjectURL(request.blob);
 
     let downloadId: number;
     try {
-      downloadId = await chrome.downloads.download({
-        url: dataUrl,
-        filename,
-        saveAs: this.askEveryTime,
-        // Never silently clobber an existing capture.
-        conflictAction: 'uniquify',
-      });
-    } catch (cause) {
-      throw this.classify(cause);
-    }
+      try {
+        downloadId = await chrome.downloads.download({
+          url: blobUrl,
+          filename,
+          saveAs: this.askEveryTime,
+          // Never silently clobber an existing capture.
+          conflictAction: 'uniquify',
+        });
+      } catch (cause) {
+        throw this.classify(cause);
+      }
 
-    const completed = await this.waitForCompletion(downloadId, request.signal);
-    request.onProgress?.(request.blob.size, request.blob.size);
+      const completed = await this.waitForCompletion(downloadId, request.folderId ?? '', request.signal);
+      request.onProgress?.(request.blob.size, request.blob.size);
 
-    // DownloadItem.filename is the absolute local path, and it is the only way to
-    // learn where the user's download directory actually is on this machine.
-    if (completed.filename) {
-      this.downloadRoot = deriveDownloadRoot(completed.filename, filename);
-    }
+      // DownloadItem.filename is the absolute local path, and it is the only way to
+      // learn where the user's download directory actually is on this machine.
+      if (completed.filename) {
+        this.downloadRoot = deriveDownloadRoot(completed.filename, filename);
+      }
 
-    return {
-      id: String(downloadId),
-      name: request.filename,
-      // A local file has no web address; the UI reveals it in the file manager instead.
-      webUrl: '',
-      size: completed.fileSize > 0 ? completed.fileSize : request.blob.size,
-      mimeType: request.mimeType,
-      downloadId,
-      ...(completed.filename ? { localPath: completed.filename } : {}),
-    };
-  }
-
-  private async toDataUrl(blob: Blob, mimeType: string): Promise<string> {
-    try {
-      const bytes = new Uint8Array(await blob.arrayBuffer());
-      return `data:${mimeType};base64,${base64FromBytes(bytes)}`;
-    } catch (cause) {
-      throw toAppError(cause, 'SAVE_FAILED');
+      return {
+        id: String(downloadId),
+        name: request.filename,
+        // A local file has no web address; the UI reveals it in the file manager instead.
+        webUrl: '',
+        size: completed.fileSize > 0 ? completed.fileSize : request.blob.size,
+        mimeType: request.mimeType,
+        downloadId,
+        ...(completed.filename ? { localPath: completed.filename } : {}),
+      };
+    } finally {
+      URL.revokeObjectURL(blobUrl);
     }
   }
 
@@ -205,9 +203,15 @@ export class LocalProvider implements StorageProvider {
    * soon as the download is *queued*. Waiting for the terminal state means a full
    * disk or a cancelled save dialog surfaces as a real error instead of a success
    * message with no file behind it.
+   *
+   * The `subfolder` argument is not used for routing — Chrome's `onChanged` event
+   * already carries the failure reason — but it lets the interruption classifier
+   * distinguish a generic "Downloads unavailable" from a sub-folder specific failure,
+   * which is the case macOS produces when the sub-directory cannot be reached.
    */
   private waitForCompletion(
     downloadId: number,
+    subfolder: string,
     signal?: AbortSignal,
   ): Promise<{ fileSize: number; filename: string }> {
     return new Promise((resolve, reject) => {
@@ -230,7 +234,7 @@ export class LocalProvider implements StorageProvider {
           finish(() => resolve({ fileSize: item.fileSize ?? 0, filename: item.filename ?? '' }));
         } else if (item.state === 'interrupted') {
           const reason = item.error ?? 'unknown';
-          finish(() => reject(this.classifyInterruption(reason)));
+          finish(() => reject(classifyInterruption(reason, subfolder)));
         }
       };
 
@@ -255,20 +259,6 @@ export class LocalProvider implements StorageProvider {
       // The download may already have finished before the listener was attached.
       void inspect();
     });
-  }
-
-  /** Chrome's interruption reasons, translated into something a person can act on. */
-  private classifyInterruption(reason: string): AppError {
-    if (/USER_CANCELED|USER_SHUTDOWN/i.test(reason)) {
-      return new AppError('SAVE_CANCELLED', { details: reason });
-    }
-    if (/FILE_NO_SPACE/i.test(reason)) {
-      return new AppError('DISK_FULL', { details: reason });
-    }
-    if (/FILE_ACCESS_DENIED|FILE_NAME_TOO_LONG|FILE_TOO_LARGE|FILE_FAILED/i.test(reason)) {
-      return new AppError('SAVE_FAILED', { details: reason });
-    }
-    return new AppError('SAVE_FAILED', { details: reason });
   }
 
   private classify(cause: unknown): AppError {
@@ -297,6 +287,50 @@ export class LocalProvider implements StorageProvider {
       // Showing a file is a convenience; never let it surface as a failure.
     }
   }
+}
+
+/**
+ * Translates a Chrome downloads interruption reason into an AppError a person can act on.
+ *
+ * The mapping is deliberately coarser than the full enum: the API does not guarantee
+ * backwards-compatible reason strings, so a regex match is the honest compromise
+ * between precision and resilience to upstream churn.
+ *
+ * The `subfolder` argument lets the classifier point the user at the right thing when
+ * Chrome's generic `FILE_FAILED` actually means "could not write into the sub-folder
+ * you configured". Without it, every macOS user with a configured sub-folder would
+ * see "your Downloads folder is unavailable", which is misleading and unhelpful.
+ */
+export function classifyInterruption(reason: string, subfolder: string): AppError {
+  if (/USER_CANCELED|USER_SHUTDOWN/i.test(reason)) {
+    return new AppError('SAVE_CANCELLED', { details: reason });
+  }
+  if (/FILE_NO_SPACE/i.test(reason)) {
+    return new AppError('DISK_FULL', { details: reason });
+  }
+  if (/FILE_NAME_TOO_LONG/i.test(reason)) {
+    return new AppError('SAVE_FAILED', {
+      details: reason,
+      userMessage:
+        "That file name is too long for this device. Try a simpler name template in Settings.",
+    });
+  }
+  if (/FILE_ACCESS_DENIED|FILE_TOO_LARGE/i.test(reason)) {
+    return new AppError('SAVE_FAILED', { details: reason });
+  }
+  if (/FILE_FAILED/i.test(reason)) {
+    // macOS in particular surfaces sub-folder write failures through this generic
+    // reason, so prefer a message that names the actual cause when one is configured.
+    const cleanSubfolder = sanitizeSubfolder(subfolder);
+    if (cleanSubfolder) {
+      return new AppError('SAVE_FAILED', {
+        details: reason,
+        userMessage: `SnapDock couldn't write into the “${cleanSubfolder}” folder inside your Downloads. Check that the folder exists and that SnapDock has permission to write there, then try again.`,
+      });
+    }
+    return new AppError('SAVE_FAILED', { details: reason });
+  }
+  return new AppError('SAVE_FAILED', { details: reason });
 }
 
 /**

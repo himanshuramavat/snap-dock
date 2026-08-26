@@ -6,6 +6,7 @@ import {
   LocalProvider,
   MAX_RELATIVE_PATH,
   buildRelativePath,
+  classifyInterruption,
   deriveDownloadRoot,
   sanitizeSubfolder,
 } from '@/storage/local/LocalProvider';
@@ -252,6 +253,210 @@ describe('LocalProvider contract', () => {
   });
 });
 
+/**
+ * The save pipeline hands a blob URL to chrome.downloads, not a data: URL.
+ *
+ * Manifest V3 service workers reject data: URLs in `chrome.downloads.download` with
+ * `Access denied`. The fix is to call `URL.createObjectURL`, pass the resulting
+ * `blob:` URL to the API, and revoke it once the download has settled. The tests
+ * below stub enough of the chrome.downloads surface to drive a save end-to-end
+ * without a real browser.
+ */
+describe('LocalProvider.uploadFile', () => {
+  type DownloadListener = (delta: chrome.downloads.DownloadDelta) => void;
+  type DownloadItem = chrome.downloads.DownloadItem;
+
+  interface DownloadHarness {
+    createdUrls: string[];
+    revokedUrls: string[];
+    /** Forces the in-flight download to its terminal state. */
+    completeNext: (state: 'complete' | 'interrupted') => void;
+    installChrome: () => void;
+  }
+
+  /**
+   * Stubs URL.createObjectURL / revokeObjectURL and chrome.downloads, returning
+   * a small handle the tests can use to drive the save to a terminal state.
+   */
+  function installDownloadHarness(): DownloadHarness {
+    const createdUrls: string[] = [];
+    const revokedUrls: string[] = [];
+    let listeners: DownloadListener[] = [];
+    let nextDownloadId = 1;
+    let pendingState: 'complete' | 'interrupted' | null = null;
+
+    const createSpy = ((): typeof URL.createObjectURL => {
+      const fn = ((_target: Blob) => {
+        const url = `blob:test/${createdUrls.length + 1}`;
+        createdUrls.push(url);
+        return url;
+      }) as unknown as typeof URL.createObjectURL;
+      return fn;
+    })();
+
+    const revokeSpy = ((url: string) => {
+      revokedUrls.push(url);
+    }) as unknown as typeof URL.revokeObjectURL;
+
+    Object.defineProperty(globalThis, 'URL', {
+      configurable: true,
+      value: Object.assign(globalThis.URL, {
+        createObjectURL: createSpy,
+        revokeObjectURL: revokeSpy,
+      }),
+    });
+
+    const chromeDownloads: Partial<typeof chrome.downloads> = {
+      download: ((options: chrome.downloads.DownloadOptions) => {
+        if (typeof options.url !== 'string' || !options.url.startsWith('blob:')) {
+          throw new Error(`Access denied for URL ${String(options.url).slice(0, 20)}`);
+        }
+        const id = nextDownloadId;
+        nextDownloadId += 1;
+        // Mimic Chrome's onChanged firing after the queue settles.
+        queueMicrotask(() => {
+          const state = pendingState ?? 'complete';
+          for (const fn of listeners) fn({ id, state: { current: state } });
+        });
+        return Promise.resolve(id);
+      }) as unknown as typeof chrome.downloads.download,
+      search: ((query: { id: number }) => {
+        const state = pendingState ?? 'complete';
+        return Promise.resolve([
+          {
+            id: query.id,
+            state,
+            fileSize: 12,
+            filename: '/tmp/SnapDock/shot.png',
+            error: state === 'interrupted' ? 'FILE_FAILED' : undefined,
+          } as unknown as DownloadItem,
+        ]);
+      }) as unknown as typeof chrome.downloads.search,
+      cancel: (() => Promise.resolve()) as unknown as typeof chrome.downloads.cancel,
+      onChanged: {
+        addListener: (fn: DownloadListener) => {
+          listeners.push(fn);
+        },
+        removeListener: (fn: DownloadListener) => {
+          listeners = listeners.filter((l) => l !== fn);
+        },
+      } as unknown as typeof chrome.downloads.onChanged,
+    };
+
+    return {
+      createdUrls,
+      revokedUrls,
+      completeNext: (state) => {
+        pendingState = state;
+      },
+      installChrome: () => {
+        (globalThis as unknown as { chrome: unknown }).chrome = { downloads: chromeDownloads };
+      },
+    };
+  }
+
+  function makeBlob(): Blob {
+    // A real Blob, not a fake, so the URL polyfill above sees the right shape.
+    return new Blob(['hello world!'], { type: 'image/png' });
+  }
+
+  it('passes a blob: URL to chrome.downloads.download, never a data: URL', async () => {
+    const harness = installDownloadHarness();
+    harness.installChrome();
+
+    const provider = new LocalProvider();
+    const promise = provider.uploadFile({
+      blob: makeBlob(),
+      filename: 'shot.png',
+      mimeType: 'image/png',
+      folderId: 'SnapDock',
+    });
+
+    harness.completeNext('complete');
+
+    const result = await promise;
+    expect(result.name).toBe('shot.png');
+    expect(result.downloadId).toBeGreaterThan(0);
+
+    expect(harness.createdUrls).toHaveLength(1);
+    expect(harness.createdUrls[0]).toMatch(/^blob:/);
+  });
+
+  it('revokes the blob URL after a successful save so the bytes are released', async () => {
+    const harness = installDownloadHarness();
+    harness.installChrome();
+
+    const provider = new LocalProvider();
+    const promise = provider.uploadFile({
+      blob: makeBlob(),
+      filename: 'shot.png',
+      mimeType: 'image/png',
+      folderId: null,
+    });
+
+    harness.completeNext('complete');
+    await promise;
+
+    expect(harness.revokedUrls).toEqual(harness.createdUrls);
+  });
+
+  it('revokes the blob URL even when chrome.downloads.download throws', async () => {
+    const createdUrls: string[] = [];
+    const revokedUrls: string[] = [];
+    Object.defineProperty(globalThis, 'URL', {
+      configurable: true,
+      value: Object.assign(globalThis.URL, {
+        createObjectURL: ((_t: Blob) => {
+          const url = `blob:test/${createdUrls.length + 1}`;
+          createdUrls.push(url);
+          return url;
+        }) as unknown as typeof URL.createObjectURL,
+        revokeObjectURL: ((url: string) => {
+          revokedUrls.push(url);
+        }) as unknown as typeof URL.revokeObjectURL,
+      }),
+    });
+
+    const chromeDownloads = {
+      download: () => Promise.reject(new Error('Bad URL')),
+      search: async () => [],
+      cancel: async () => undefined,
+      onChanged: { addListener: () => undefined, removeListener: () => undefined },
+    };
+    (globalThis as unknown as { chrome: unknown }).chrome = { downloads: chromeDownloads };
+
+    const provider = new LocalProvider();
+    await expect(
+      provider.uploadFile({
+        blob: new Blob(['x'], { type: 'image/png' }),
+        filename: 'shot.png',
+        mimeType: 'image/png',
+        folderId: null,
+      }),
+    ).rejects.toThrow();
+
+    expect(revokedUrls).toEqual(createdUrls);
+  });
+
+  it('revokes the blob URL when the download is interrupted after queuing', async () => {
+    const harness = installDownloadHarness();
+    harness.installChrome();
+
+    const provider = new LocalProvider();
+    const promise = provider.uploadFile({
+      blob: makeBlob(),
+      filename: 'shot.png',
+      mimeType: 'image/png',
+      folderId: 'SnapDock',
+    });
+
+    harness.completeNext('interrupted');
+    await expect(promise).rejects.toThrow();
+
+    expect(harness.revokedUrls).toEqual(harness.createdUrls);
+  });
+});
+
 describe('settings schema for destinations', () => {
   it('defaults to local saving, so the extension works with no setup', () => {
     expect(DEFAULT_SETTINGS.destinationMode).toBe('local');
@@ -389,5 +594,70 @@ describe('formatLocalPath', () => {
 
   it('sanitises the sub-folder before displaying it', () => {
     expect(formatLocalPath('/home/ana/Downloads', '../etc')).toBe('/home/ana/Downloads/etc');
+  });
+});
+
+/**
+ * Translating Chrome's interruption reasons into AppError.
+ *
+ * The macOS regression that motivates this suite: when the configured sub-folder
+ * cannot be reached, Chromium surfaces a generic `FILE_FAILED` reason that the
+ * default "Downloads folder unavailable" copy would happily misreport. The classifier
+ * is the only line of defence against that misleading message.
+ */
+describe('classifyInterruption', () => {
+  it('treats USER_CANCELED and USER_SHUTDOWN as a clean cancellation', () => {
+    expect(classifyInterruption('USER_CANCELED', 'SnapDock').code).toBe('SAVE_CANCELLED');
+    expect(classifyInterruption('USER_SHUTDOWN', 'SnapDock').code).toBe('SAVE_CANCELLED');
+  });
+
+  it('treats FILE_NO_SPACE as a disk-full error, not a save failure', () => {
+    expect(classifyInterruption('FILE_NO_SPACE', 'SnapDock').code).toBe('DISK_FULL');
+  });
+
+  it('treats FILE_NAME_TOO_LONG as a save failure with a name-specific hint', () => {
+    const error = classifyInterruption('FILE_NAME_TOO_LONG', 'SnapDock');
+    expect(error.code).toBe('SAVE_FAILED');
+    expect(error.userMessage.toLowerCase()).toContain('too long');
+  });
+
+  it('treats FILE_ACCESS_DENIED and FILE_TOO_LARGE as plain save failures', () => {
+    expect(classifyInterruption('FILE_ACCESS_DENIED', 'SnapDock').code).toBe('SAVE_FAILED');
+    expect(classifyInterruption('FILE_TOO_LARGE', 'SnapDock').code).toBe('SAVE_FAILED');
+  });
+
+  it('passes the original reason through in details so logs are actionable', () => {
+    expect(classifyInterruption('FILE_ACCESS_DENIED', '').details).toBe('FILE_ACCESS_DENIED');
+    expect(classifyInterruption('FILE_FAILED', '').details).toBe('FILE_FAILED');
+  });
+
+  it('uses the generic "Downloads folder unavailable" copy when FILE_FAILED has no sub-folder context', () => {
+    // Empty sub-folder means saving straight into Downloads; the standard copy is correct here.
+    const error = classifyInterruption('FILE_FAILED', '');
+    expect(error.code).toBe('SAVE_FAILED');
+    expect(error.userMessage.toLowerCase()).toContain('downloads folder is available');
+  });
+
+  it('points the user at the configured sub-folder when FILE_FAILED occurs with one', () => {
+    // This is the macOS regression: a generic FILE_FAILED on a sub-folder save must
+    // name the sub-folder rather than blame the whole Downloads directory.
+    const error = classifyInterruption('FILE_FAILED', 'SnapDock');
+    expect(error.code).toBe('SAVE_FAILED');
+    expect(error.userMessage).toContain('SnapDock');
+    expect(error.userMessage.toLowerCase()).not.toContain('downloads folder is available');
+  });
+
+  it('uses the sanitised sub-folder name in the message so a hostile setting cannot leak', () => {
+    // Path-traversal and empty sub-folders must not end up in the user-visible copy.
+    expect(classifyInterruption('FILE_FAILED', '../../etc').userMessage).toContain('etc');
+    expect(classifyInterruption('FILE_FAILED', '   ').userMessage.toLowerCase()).toContain(
+      'downloads folder is available',
+    );
+  });
+
+  it('falls back to the generic save-failed message for unrecognised reasons', () => {
+    const error = classifyInterruption('SOMETHING_NEW_FROM_UPSTREAM', 'SnapDock');
+    expect(error.code).toBe('SAVE_FAILED');
+    expect(error.details).toBe('SOMETHING_NEW_FROM_UPSTREAM');
   });
 });
