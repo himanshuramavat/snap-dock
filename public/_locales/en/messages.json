@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "SnapDock",
+    "message": "SnapDock: Screenshot & PDF to Drive",
     "description": "Extension name shown in the browser toolbar and web store. A product name, keep untranslated."
   },
   "extensionDescription": {
-    "message": "Capture. Configure. Save. High-quality screenshots and PDFs, saved to your device or straight to Google Drive.",
+    "message": "Capture any page as an image or PDF and save it straight to your device, to Google Drive, or both. No account needed.",
     "description": "Extension description for the web store listing. Keep 'SnapDock' and 'Google Drive' untranslated as brand names."
   },
   "extensionTitle": {

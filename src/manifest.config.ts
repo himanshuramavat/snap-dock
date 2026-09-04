@@ -56,6 +56,7 @@ export function buildManifest(options: ManifestBuildOptions): Record<string, unk
   const manifest: Record<string, unknown> = {
     manifest_version: 3,
     name: '__MSG_extensionName__',
+    short_name: 'SnapDock',
     version: options.version,
     description: '__MSG_extensionDescription__',
     default_locale: 'en',
