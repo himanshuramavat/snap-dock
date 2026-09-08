@@ -129,7 +129,10 @@ stores.
 
 1. Click the toolbar icon. The popup opens.
 2. Pick **Visible** + **PNG** + **Capture & Save**.
-3. The file lands in `Downloads/SnapDock`.
+3. The file lands in `Downloads/SnapDock`. On Chromium this exercises the
+   offscreen document path (`chrome://extensions` → SnapDock → *Inspect views*
+   briefly lists `offscreen/offscreen.html` during the save and it disappears
+   after). On Firefox the event page mints the blob URL directly.
 4. Open the popup again → the previous capture shows in **Saved to this device**.
 5. Click **Reveal in Finder/Explorer** to confirm the path.
 6. Run a second capture with the same filename: it should be uniquified
@@ -154,6 +157,7 @@ about what counts as a valid target. Verify on:
 | Windows | Long filenames approaching MAX_PATH; reserved names (`CON`, `PRN`); trailing dots in sub-folder names. |
 | macOS | Sub-folder write failures surfacing as `FILE_FAILED` interruptions. See "macOS regression" below. |
 | Linux | Default download directory permissions; the `xdg-user-dirs` setup. |
+| ChromeOS | Downloads lives under `MyFiles/Downloads`; same POSIX rules as Linux. |
 
 If you don't have a Mac available, exercise the macOS-specific code path with
 the unit tests in `tests/local-provider.test.ts` — the `classifyInterruption`
@@ -198,6 +202,14 @@ Before you stop and report a change:
 - **`chrome.downloads.download` rejects with an opaque error** — `console.error`
   in `LocalProvider.classify` already preserves `cause`. Check the browser's
   extension service-worker console (chrome://extensions → service worker link).
+- **`URL.createObjectURL is not a function` in the background** — the service
+  worker has no such API; never call it there. Local saves obtain their URL via
+  `src/storage/local/downloadUrl.ts` (offscreen document on Chromium). If you see
+  this, something bypassed the leaser. See "How a capture reaches
+  chrome.downloads" in CLAUDE.md.
+- **`Only a single offscreen document may be created`** — a previous save left
+  the document open (worker restarted mid-save). `chromeOffscreenApi` treats it
+  as success and reuses the document; if it still fails, reload the extension.
 - **The build splits wrong** — check `scripts/targets.mjs` and
   `vite.config.ts`'s manifest plugin. The two manifests are the only place
   the targets should differ.

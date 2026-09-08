@@ -1,6 +1,12 @@
 import type { ConnectionStatus, ProviderId, RemoteFolder, UploadedFile } from '@/types';
 import { AppError } from '@/utils/errors';
 import { sanitizeBasename } from '@/filename/sanitize';
+import { createIndexedDbHandoff } from './blobHandoff';
+import {
+  defaultDownloadUrlLeaser,
+  type DownloadUrlLease,
+  type LeaseDownloadUrl,
+} from './downloadUrl';
 import type {
   ConnectOptions,
   ProviderCapabilities,
@@ -17,14 +23,14 @@ import type {
  *
  * Two platform constraints shape everything here:
  *
- *  1. `chrome.downloads.download` refuses `data:` URLs in Manifest V3 service workers
- *     with an `Access denied for URL data:…` error, regardless of origin or content
- *     type. A blob URL must be handed to the API instead. `URL.createObjectURL` and
- *     `URL.revokeObjectURL` are available in service workers from Chrome 121 and
- *     Firefox 121, both comfortably below the manifest's `minimum_chrome_version: 116`
- *     and `strict_min_version: 140` floors, so no extra permission or fallback is
- *     needed. The URL is revoked as soon as the download has reached a terminal
- *     state, so the captured bytes do not outlive the save.
+ *  1. `chrome.downloads.download` needs a URL, and a Manifest V3 service worker has no
+ *     `URL.createObjectURL` to make one from a Blob (the URL spec exposes it to Window
+ *     and dedicated/shared workers only; Chromium's background is neither). Firefox's
+ *     MV3 background is an event page and does have it. The provider therefore does
+ *     not mint URLs itself: it asks a `LeaseDownloadUrl` for one and releases the
+ *     lease once the download has reached a terminal state. See downloadUrl.ts for
+ *     the strategy chain (in-context object URL, offscreen document, data URL) and
+ *     why each exists.
  *
  *  2. Chrome can only write inside the user's download directory, and only via a
  *     *relative* path: absolute paths, empty paths and paths containing '..' are
@@ -94,6 +100,17 @@ export class LocalProvider implements StorageProvider {
    */
   downloadRoot: string | undefined;
 
+  private readonly leaseUrl: LeaseDownloadUrl;
+
+  /**
+   * @param leaseUrl How to turn a Blob into a URL `chrome.downloads` accepts. Defaults
+   *   to the engine-appropriate strategy chain; tests inject their own.
+   */
+  constructor(leaseUrl?: LeaseDownloadUrl) {
+    this.leaseUrl =
+      leaseUrl ?? defaultDownloadUrlLeaser(() => createIndexedDbHandoff(indexedDB));
+  }
+
   /* ----------------------------------------------------------- connection */
 
   /** Nothing to connect to. Local saving is always available. */
@@ -154,15 +171,20 @@ export class LocalProvider implements StorageProvider {
 
     request.onProgress?.(0, request.blob.size);
 
-    // Blob URL, not a data: URL: chrome.downloads rejects data: URLs in MV3 with
-    // `Access denied`. Revoke after the download reaches a terminal state.
-    const blobUrl = URL.createObjectURL(request.blob);
+    // The URL is leased rather than created here: service workers cannot mint blob
+    // URLs, so how one is obtained depends on the engine. See downloadUrl.ts.
+    let lease: DownloadUrlLease;
+    try {
+      lease = await this.leaseUrl(request.blob);
+    } catch (cause) {
+      throw this.classify(cause);
+    }
 
     let downloadId: number;
     try {
       try {
         downloadId = await chrome.downloads.download({
-          url: blobUrl,
+          url: lease.url,
           filename,
           saveAs: this.askEveryTime,
           // Never silently clobber an existing capture.
@@ -192,7 +214,8 @@ export class LocalProvider implements StorageProvider {
         ...(completed.filename ? { localPath: completed.filename } : {}),
       };
     } finally {
-      URL.revokeObjectURL(blobUrl);
+      // Released on every terminal path so the captured bytes never outlive the save.
+      await lease.release().catch(() => undefined);
     }
   }
 
@@ -262,6 +285,8 @@ export class LocalProvider implements StorageProvider {
   }
 
   private classify(cause: unknown): AppError {
+    // Already shaped for the user (e.g. the data URL size limit); keep it as is.
+    if (cause instanceof AppError) return cause;
     const message = cause instanceof Error ? cause.message : String(cause);
     if (/invalid filename|filename/i.test(message)) {
       return new AppError('SAVE_FAILED', {
