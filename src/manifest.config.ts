@@ -100,6 +100,9 @@ export function buildManifest(options: ManifestBuildOptions): Record<string, unk
      * - storage    : persists settings, presets and the chosen destination.
      * - downloads  : saves captures to the user's device, the default destination.
      * - identity   : Google sign-in for the optional Google Drive destination.
+     * - offscreen  : Chromium only (added below). Service workers cannot create the
+     *                blob: URL chrome.downloads needs, so a hidden extension page
+     *                does it. No install-time warning is shown for this permission.
      *
      * Deliberately absent: 'tabs' (activeTab already yields url/title for the tab
      * the user acted on), 'notifications', and any host wildcard.
@@ -165,8 +168,14 @@ export function buildManifest(options: ManifestBuildOptions): Record<string, unk
     return manifest;
   }
 
-  /* Chromium 116 for chrome.storage.session and stable MV3 scripting. */
+  /* Chromium 116 for chrome.storage.session, runtime.getContexts and stable MV3 scripting. */
   manifest.minimum_chrome_version = '116';
+
+  /*
+   * Firefox's event page can call URL.createObjectURL directly and does not know the
+   * `offscreen` permission, so it is Chromium-only. See src/storage/local/downloadUrl.ts.
+   */
+  manifest.permissions = [...(manifest.permissions as string[]), 'offscreen'];
 
   /*
    * `oauth2` is omitted entirely when no client id is configured. An empty string

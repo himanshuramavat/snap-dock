@@ -125,10 +125,13 @@ One codebase and one bundle, built into a target per engine.
 | Chrome, Edge, Brave, Opera, Vivaldi | 116 | The browser's own token store |
 | Firefox | 140 desktop, 142 Android | OAuth authorization code flow with PKCE |
 
-Windows, macOS and Linux are all supported. Filenames are sanitised against the
-union of all three platforms' rules, paths are length-capped for Windows, and the
-save location shown in Settings is read back from the real download rather than
-guessed.
+Windows, macOS, Linux and ChromeOS are all supported. Filenames are sanitised
+against the union of the platforms' rules, paths are length-capped for Windows, and
+the save location shown in Settings is read back from the real download rather than
+guessed. Local saving does not depend on the operating system: the same
+`chrome.downloads` call is used everywhere, fed by a `blob:` URL that the extension
+mints in an offscreen document on Chromium and directly in the event page on
+Firefox.
 
 ## Permissions
 
@@ -139,6 +142,7 @@ guessed.
 | `storage` | Persist your settings, presets and chosen destination |
 | `downloads` | Save captures to your device, the default destination |
 | `identity` | Google sign-in, only for the optional Drive destination |
+| `offscreen` | Chromium only. Service workers cannot create the temporary `blob:` link a download needs, so a hidden extension page does it and is closed again straight after. No install-time warning |
 | `googleapis.com`, `accounts.google.com` | The Drive API and its consent screen |
 
 Deliberately **not** requested: `tabs`, `notifications`, `<all_urls>`, or any host

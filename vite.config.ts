@@ -67,12 +67,11 @@ export default defineConfig(({ mode }) => {
       target: 'chrome116',
       sourcemap: mode === 'development',
       minify: mode !== 'development',
-      // Extension assets are loaded from disk; content hashes add no value and make
-      // manifest/CSP references harder to reason about.
       rollupOptions: {
         input: {
           popup: resolve(root, 'popup/popup.html'),
           options: resolve(root, 'options/options.html'),
+          offscreen: resolve(root, 'offscreen/offscreen.html'),
         },
         output: {
           entryFileNames: 'assets/[name].js',

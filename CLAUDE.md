@@ -26,6 +26,7 @@ snap-dock/
 ├── src/
 │   ├── background/        # Service-worker / event-page entry (one for both engines)
 │   ├── content/           # Content script: region-select overlay (IIFE, single file)
+│   ├── offscreen/         # Chromium-only hidden page that mints blob: URLs for downloads
 │   ├── popup/             # Toolbar popup UI (React)
 │   ├── options/           # Full-page settings UI (React)
 │   ├── capture/           # captureVisibleTab, page probe, region selection plumbing
@@ -34,6 +35,8 @@ snap-dock/
 │   ├── filename/          # Template expansion, basename sanitisation
 │   ├── storage/
 │   │   ├── local/         # LocalProvider — chrome.downloads wrapper
+│   │   │                  #   downloadUrl.ts: blob → URL strategy chain
+│   │   │                  #   blobHandoff.ts: IndexedDB handoff to the offscreen page
 │   │   ├── google-drive/  # GoogleDriveProvider — Drive REST + PKCE/managed token
 │   │   ├── destination.ts # resolveDestinations, mode semantics
 │   │   ├── registry.ts    # Provider registry; register() / getProvider()
@@ -98,6 +101,34 @@ npm run dev                # watch mode for the popup/options
 
 See `AGENT.md` for the full per-browser manual-test flow.
 
+## How a capture reaches chrome.downloads
+
+`chrome.downloads.download` needs a URL. **Manifest V3 service workers have no
+`URL.createObjectURL`** (the URL spec exposes it to Window and dedicated/shared
+workers only), so calling it in Chromium's background throws
+`URL.createObjectURL is not a function` and every local save fails. This shipped
+once and was caught by Chrome Web Store review; do not reintroduce it.
+
+`LocalProvider` therefore never mints a URL itself. It asks a `LeaseDownloadUrl`
+(`src/storage/local/downloadUrl.ts`) and releases the lease once the download has
+reached a terminal state. The default chain, in order:
+
+1. **Object URL in this context** — Firefox's event page has `URL.createObjectURL`.
+2. **Offscreen document** — Chromium: `chrome.offscreen.createDocument` (reason
+   `BLOBS`) opens `offscreen/offscreen.html`; the worker parks the blob in
+   IndexedDB (`blobHandoff.ts`), the page collects it, mints a same-origin
+   `blob:chrome-extension://…` URL and revokes it on request. The page is closed
+   when the last lease is released. Needs the `offscreen` permission, which the
+   Chromium manifest adds and the Firefox manifest does not.
+3. **Base64 data URL** — last resort only. Chromium caps URLs at 2 MB
+   (`url::kMaxURLChars`), which full-page captures exceed, so this exists to keep
+   small saves working in a context with neither of the above.
+
+Every strategy takes its dependencies as arguments; `tests/download-url.test.ts`
+drives the chain, the offscreen lifecycle and the IndexedDB handoff (via
+`fake-indexeddb`), and `tests/local-provider.test.ts` runs a full save in a
+simulated service worker with no `URL.createObjectURL`.
+
 ## Cross-platform path handling
 
 Captures always save into a *relative* path under Downloads (`Downloads/SnapDock`
@@ -140,7 +171,13 @@ the folder the user chose.
   first-class choice. Local is always first, so a partial failure still leaves the
   file on disk.
 - **No `notifications`, no `<all_urls>`, no `tabs`, no analytics.** The
-  permissions list in `src/manifest.config.ts` is intentionally minimal.
+  permissions list in `src/manifest.config.ts` is intentionally minimal. The
+  Chromium manifest additionally carries `offscreen` (no install-time warning),
+  which exists solely so local saves can obtain a `blob:` URL.
+- **Never assume a Window API exists in the background.** The service worker has
+  no `URL.createObjectURL`, `document`, `FileReader`-backed DOM helpers, or
+  `Image`. Anything that needs them goes through `src/offscreen/` or
+  `OffscreenCanvas`.
 
 ## Files most likely to need editing
 
@@ -149,6 +186,7 @@ the folder the user chose.
 | Change how a capture is taken | `src/capture/CaptureEngine.ts`, `src/capture/tabCapture.ts` |
 | Add a new output format | `src/image/ImageProcessor.ts`, `src/pdf/PdfBuilder.ts`, `src/filename/template.ts` (`OUTPUT_FILE_INFO`) |
 | Change local saving behaviour | `src/storage/local/LocalProvider.ts` |
+| Change how the download URL is obtained | `src/storage/local/downloadUrl.ts`, `src/storage/local/blobHandoff.ts`, `src/offscreen/main.ts` |
 | Add a new destination | implement `StorageProvider`, register in `src/storage/registry.ts`, add to `DESTINATION_MODES` in `src/storage/destination.ts`, surface in `src/options/sections/DestinationSection.tsx` |
 | Add a setting | `src/settings/schema.ts`, `src/settings/defaults.ts`, the relevant section component under `src/options/sections/` |
 | Tweak manifest keys | `src/manifest.config.ts` |
@@ -157,9 +195,9 @@ the folder the user chose.
 ## Tests
 
 Vitest, Node environment. Specs live in `tests/` and mirror the layer they cover
-(`errors.test.ts`, `filename.test.ts`, `local-provider.test.ts`, `pdf.test.ts`,
-`presets.test.ts`, `settings.test.ts`, `storage-provider.test.ts`,
-`capture-config.test.ts`, `drive.test.ts`).
+(`errors.test.ts`, `filename.test.ts`, `local-provider.test.ts`,
+`download-url.test.ts`, `pdf.test.ts`, `presets.test.ts`, `settings.test.ts`,
+`storage-provider.test.ts`, `capture-config.test.ts`, `drive.test.ts`).
 
 Conventions:
 
