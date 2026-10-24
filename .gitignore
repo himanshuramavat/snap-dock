@@ -2,7 +2,8 @@ node_modules/
 dist/
 dist-firefox/
 store-assets/
-docs/
+docs/*
+!docs/index.html
 
 coverage/
 web-ext-artifacts/

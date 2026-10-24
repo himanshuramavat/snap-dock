@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapDock — Capture. Configure. Save.</title>
+<meta name="description" content="High-quality screenshots and PDFs, saved where you want them. Capture visible area, region, or full page. Save to device or Google Drive. Open source, no telemetry.">
+<meta name="theme-color" content="#E53935">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+/* ── Reset & Base ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;color:#1e293b;background:#fff;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root{
+  --red:#E53935;
+  --red-dark:#C62828;
+  --red-light:#FFCDD2;
+  --red-bg:#FFF5F5;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-400:#94a3b8;
+  --gray-500:#64748b;
+  --gray-600:#475569;
+  --gray-700:#334155;
+  --gray-800:#1e293b;
+  --gray-900:#0f172a;
+  --section-pad:clamp(64px,10vw,120px) clamp(16px,5vw,24px);
+  --max-w:1120px;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 14px rgba(0,0,0,.06);
+  --shadow-lg:0 4px 12px rgba(0,0,0,.1),0 12px 40px rgba(0,0,0,.08);
+}
+
+/* ── Typography ────────────────────────────────────────────── */
+h1,h2,h3,h4{font-weight:700;color:var(--gray-900);line-height:1.2}
+h1{font-size:clamp(2.25rem,5vw,3.5rem);letter-spacing:-.02em}
+h2{font-size:clamp(1.75rem,3.5vw,2.5rem);letter-spacing:-.015em}
+h3{font-size:1.25rem}
+p{color:var(--gray-600)}
+
+/* ── Utility ───────────────────────────────────────────────── */
+.container{max-width:var(--max-w);margin:0 auto;width:100%}
+.section-label{display:inline-block;font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:.75rem}
+.section-title{margin-bottom:1rem}
+.section-desc{max-width:620px;margin:0 auto 3rem;font-size:1.125rem;text-align:center;color:var(--gray-500)}
+.text-center{text-align:center}
+
+/* ── Nav ───────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);transition:box-shadow .3s}
+.nav.scrolled{box-shadow:0 1px 8px rgba(0,0,0,.07)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:var(--max-w);margin:0 auto;padding:0 clamp(16px,5vw,24px);height:64px}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.125rem;color:var(--gray-900)}
+.nav-logo img{width:32px;height:32px;border-radius:6px}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:.9375rem;font-weight:500;color:var(--gray-600);transition:color .2s;position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--red)}
+.nav-links a.active::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--red);border-radius:1px}
+.nav-cta{background:var(--red);color:#fff!important;padding:8px 18px;border-radius:var(--radius-sm);font-size:.875rem;font-weight:600;transition:background .2s,transform .1s}
+.nav-cta:hover{background:var(--red-dark);transform:translateY(-1px)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--gray-700);border-radius:2px;transition:transform .3s,opacity .3s}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+.hero{padding:clamp(120px,16vw,180px) clamp(16px,5vw,24px) var(--section-pad);background:linear-gradient(170deg,#fff 50%,var(--red-bg) 100%);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-30%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(229,57,53,.06) 0%,transparent 70%);pointer-events:none}
+.hero-icon{width:80px;height:80px;border-radius:20px;margin:0 auto 2rem;box-shadow:var(--shadow-lg)}
+.hero h1 span{color:var(--red)}
+.hero-sub{max-width:620px;margin:.75rem auto 0;font-size:clamp(1.0625rem,2vw,1.25rem);color:var(--gray-500)}
+.hero-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:2.5rem}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.9375rem;padding:13px 26px;border-radius:var(--radius-sm);transition:background .2s,transform .1s,box-shadow .2s;cursor:pointer;border:none}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(229,57,53,.3)}
+.btn-primary:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(229,57,53,.35)}
+.btn-secondary{background:#fff;color:var(--gray-800);border:1.5px solid var(--gray-200);box-shadow:var(--shadow)}
+.btn-secondary:hover{border-color:var(--gray-400);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--red);padding:13px 16px}
+.btn-ghost:hover{background:var(--red-bg)}
+.hero-note{margin-top:1.5rem;font-size:.8125rem;color:var(--gray-400)}
+
+/* ── Features ──────────────────────────────────────────────── */
+.features{padding:var(--section-pad);background:#fff}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+.feature-card{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:2rem;transition:transform .2s,box-shadow .2s}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.feature-icon{width:48px;height:48px;border-radius:12px;background:var(--red-bg);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;font-size:1.5rem}
+.feature-card h3{margin-bottom:.5rem}
+.feature-card p{font-size:.9375rem;color:var(--gray-500)}
+
+/* ── How it works ──────────────────────────────────────────── */
+.how{padding:var(--section-pad);background:var(--gray-50)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;position:relative}
+.step{text-align:center;position:relative}
+.step-num{width:52px;height:52px;border-radius:50%;background:var(--red);color:#fff;font-weight:700;font-size:1.25rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;box-shadow:0 3px 12px rgba(229,57,53,.25)}
+.step h3{margin-bottom:.5rem}
+.step p{font-size:.9375rem;color:var(--gray-500);max-width:260px;margin:0 auto}
+/* connector line between steps */
+.step:not(:last-child)::after{content:'';position:absolute;top:26px;left:calc(50% + 36px);width:calc(100% - 72px);height:2px;background:var(--gray-200)}
+@media(max-width:700px){.step:not(:last-child)::after{display:none}}
+
+/* ── Privacy ───────────────────────────────────────────────── */
+.privacy{padding:var(--section-pad);background:#fff}
+.privacy-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.privacy-content{max-width:520px}
+.privacy-content h2{margin-bottom:1rem}
+.privacy-content p{margin-bottom:1rem}
+.privacy-badges{display:flex;flex-wrap:wrap;gap:12px;margin-top:1.5rem}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;font-size:.8125rem;font-weight:600;border:1px solid var(--gray-200);color:var(--gray-700);background:#fff}
+.badge svg{width:16px;height:16px;flex-shrink:0}
+.privacy-visual{display:flex;flex-direction:column;gap:20px}
+.priv-item{display:flex;align-items:flex-start;gap:16px;padding:1.25rem 1.5rem;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200)}
+.priv-icon{width:40px;height:40px;border-radius:10px;background:var(--red-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.25rem}
+.priv-item h4{font-size:.9375rem;margin-bottom:.25rem}
+.priv-item p{font-size:.8125rem;color:var(--gray-500)}
+
+/* ── Install ───────────────────────────────────────────────── */
+.install{padding:var(--section-pad);background:linear-gradient(170deg,var(--gray-900) 0%,#1a1a2e 100%);color:#fff}
+.install h2,.install p,.install .section-label{color:#fff}
+.install .section-desc{color:rgba(255,255,255,.65)}
+.install-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.install-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:2rem;text-align:center;transition:transform .2s,background .2s}
+.install-card:hover{transform:translateY(-4px);background:rgba(255,255,255,.1)}
+.install-card-icon{font-size:2.5rem;margin-bottom:1rem}
+.install-card h3{color:#fff;margin-bottom:.5rem}
+.install-card p{color:rgba(255,255,255,.55);font-size:.875rem;margin-bottom:1.5rem}
+.install-card .btn{width:100%;justify-content:center}
+.btn-white{background:#fff;color:var(--gray-900)}
+.btn-white:hover{background:var(--gray-100);transform:translateY(-1px)}
+.btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.25)}
+.btn-outline-white:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.05);transform:translateY(-1px)}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.footer{padding:48px clamp(16px,5vw,24px) 32px;background:var(--gray-900);color:rgba(255,255,255,.5);font-size:.875rem}
+.footer-inner{max-width:var(--max-w);margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:1rem}
+.footer-brand img{width:24px;height:24px;border-radius:4px}
+.footer-links{display:flex;gap:24px}
+.footer-links a{color:rgba(255,255,255,.5);transition:color .2s;font-size:.8125rem}
+.footer-links a:hover{color:#fff}
+.footer-bottom{max-width:var(--max-w);margin:24px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+/* ── Keyboard shortcut pills ───────────────────────────────── */
+kbd{display:inline-block;padding:2px 7px;font-size:.75rem;font-family:inherit;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:4px;color:var(--gray-700);line-height:1.5}
+
+/* ── Mobile nav ────────────────────────────────────────────── */
+@media(max-width:768px){
+  .nav-links{position:fixed;top:64px;left:0;right:0;background:#fff;flex-direction:column;gap:0;padding:8px 0;border-bottom:1px solid var(--gray-200);transform:translateY(-120%);transition:transform .3s;box-shadow:var(--shadow)}
+  .nav-links.open{transform:translateY(0)}
+  .nav-links a{padding:14px 24px;width:100%;border-bottom:1px solid var(--gray-100)}
+  .nav-links a.active::after{display:none}
+  .nav-cta{margin:12px 24px;text-align:center;display:block}
+  .hamburger{display:flex}
+  .privacy-grid{grid-template-columns:1fr}
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@media(prefers-reduced-motion:no-preference){
+  .fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s ease-out,transform .6s ease-out}
+  .fade-up.visible{opacity:1;transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVIGATION ═══════════════════════ -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo" aria-label="SnapDock home">
+      <img src="data:image/png;base64,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" alt="" width="32" height="32">
+      SnapDock
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" id="menuToggle">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#install" class="nav-cta">Get SnapDock</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HERO ═════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <img class="hero-icon" src="data:image/png;base64,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" alt="SnapDock icon" width="80" height="80">
+    <h1 class="fade-up"><span>Capture.</span> <span>Configure.</span> <span>Save.</span></h1>
+    <p class="hero-sub fade-up">High-quality screenshots and PDFs from any browser tab — saved to your device, Google&nbsp;Drive, or both. No accounts, no servers, no hassle.</p>
+    <div class="hero-buttons fade-up">
+      <a href="https://chrome.google.com/webstore/detail/snapdock-screenshot-pdf-to-drive/pelchkjgofipbiafdahfneihimdjdeif" class="btn btn-primary" target="_blank" rel="noopener">
+        <!-- Chrome icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+        Add to Chrome
+      </a>
+      <a href="https://github.com/himanshuramavat/snap-dock" class="btn btn-secondary" target="_blank" rel="noopener">
+        <!-- GitHub icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#features" class="btn btn-ghost">Learn More ↓</a>
+    </div>
+    <p class="hero-note fade-up">Works on all major browsers · Free &amp; open source · MIT License</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FEATURES ═════════════════════════ -->
+<section class="features" id="features">
+  <div class="container text-center">
+    <span class="section-label fade-up">Features</span>
+    <h2 class="section-title fade-up">Everything you need, nothing you don't</h2>
+    <p class="section-desc fade-up">Capture any part of any page, fine-tune the output, and save it exactly where you want — all in a few clicks.</p>
+  </div>
+  <div class="container">
+    <div class="features-grid">
+
+      <!-- 1 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        </div>
+        <h3>Multiple Capture Modes</h3>
+        <p>Capture the visible viewport, drag to select a custom region with live dimensions, or grab the entire scrolling page — your choice, every time.</p>
+      </div>
+
+      <!-- 2 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>Flexible Output Formats</h3>
+        <p>Save as PNG, JPEG, or WebP with configurable quality. Need a PDF? Choose paper size, orientation, margins, scaling, and multi-page splitting.</p>
+      </div>
+
+      <!-- 3 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h3>Save Anywhere</h3>
+        <p>Save straight to your device, to a Google Drive folder, or both at once. Local saving works instantly — no account, no sign-in, no setup.</p>
+      </div>
+
+      <!-- 4 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <h3>Filename Templates &amp; Presets</h3>
+        <p>Name files with tokens like <code>{date}</code>, <code>{domain}</code>, <code>{title}</code> and see a live preview. Save entire configurations as presets for one-click capture.</p>
+      </div>
+
+      <!-- 5 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Smart Full-Page Capture</h3>
+        <p>Scrolls and stitches automatically, hides sticky headers so they don't repeat, waits for lazy-loaded images, and restores your scroll position when done.</p>
+      </div>
+
+      <!-- 6 -->
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+        </div>
+        <h3>Keyboard Shortcuts</h3>
+        <p>Power users, rejoice. <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> for visible, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> for full page, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> for region — no popup needed.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ HOW IT WORKS ═════════════════════ -->
+<section class="how" id="how-it-works">
+  <div class="container text-center">
+    <span class="section-label fade-up">How It Works</span>
+    <h2 class="section-title fade-up">Screenshot in seconds</h2>
+    <p class="section-desc fade-up">No complicated setup. Your first capture is four clicks away — and every one after that is just one.</p>
+  </div>
+  <div class="container">
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-num">1</div>
+        <h3>Click the icon</h3>
+        <p>Click SnapDock in your toolbar or use a keyboard shortcut to open the popup.</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">2</div>
+        <h3>Choose your capture</h3>
+        <p>Pick <strong>Visible</strong>, <strong>Area</strong>, or <strong>Full Page</strong>, then select your output format.</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">3</div>
+        <h3>Hit Capture &amp; Save</h3>
+        <p>Your file lands in <code>Downloads/SnapDock</code>. Your choices are remembered for next time.</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">4</div>
+        <h3>One click, every time after</h3>
+        <p>Settings are remembered. Next capture? Just one click or shortcut — done.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ PRIVACY ══════════════════════════ -->
+<section class="privacy" id="privacy">
+  <div class="container">
+    <div class="privacy-grid">
+      <div class="privacy-content fade-up">
+        <span class="section-label">Privacy &amp; Open Source</span>
+        <h2 class="section-title">Your captures are yours. Period.</h2>
+        <p>SnapDock collects nothing. No analytics, no telemetry, no third-party endpoints, no server component. With local saving, your captures never leave your machine.</p>
+        <p>The code is open source under the MIT License — inspect it, fork it, improve it. What you capture is your business, not ours.</p>
+        <div class="privacy-badges">
+          <span class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            No Data Collection
+          </span>
+          <a href="https://github.com/himanshuramavat/snap-dock/blob/main/PRIVACY.md" target="_blank" rel="noopener" class="badge" style="cursor:pointer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Privacy Policy
+          </a>
+          <span class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            MIT License
+          </span>
+        </div>
+      </div>
+      <div class="privacy-visual fade-up">
+        <div class="priv-item">
+          <div class="priv-icon">🚫</div>
+          <div>
+            <h4>No Servers</h4>
+            <p>There is no backend. Captures go from your browser to the destination you chose and nowhere else.</p>
+          </div>
+        </div>
+        <div class="priv-item">
+          <div class="priv-icon">🔒</div>
+          <div>
+            <h4>Minimal Permissions</h4>
+            <p>Uses <code>activeTab</code> — only the tab you capture, only when you click. No broad host access, no persistent content scripts.</p>
+          </div>
+        </div>
+        <div class="priv-item">
+          <div class="priv-icon">☁️</div>
+          <div>
+            <h4>Drive Is Optional</h4>
+            <p>Google Drive is off by default. If enabled, it uses a single <code>drive.file</code> scope — SnapDock only sees files it created.</p>
+          </div>
+        </div>
+        <div class="priv-item">
+          <div class="priv-icon">👁️</div>
+          <div>
+            <h4>Fully Auditable</h4>
+            <p>Every line of code is on GitHub. No minified blobs, no hidden network calls. Read it yourself.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ INSTALL ══════════════════════════ -->
+<section class="install" id="install">
+  <div class="container text-center">
+    <span class="section-label" style="color:var(--red-light)">Get SnapDock</span>
+    <h2 class="section-title fade-up">Ready to capture?</h2>
+    <p class="section-desc fade-up">Free, open source, and works on all major browsers. Install in seconds.</p>
+  </div>
+  <div class="container">
+    <div class="install-cards">
+
+      <div class="install-card fade-up">
+        <div class="install-card-icon">🌐</div>
+        <h3>Chrome Web Store</h3>
+        <p>Works on Chrome, Edge, and other Chromium-based browsers.</p>
+        <a href="https://chrome.google.com/webstore/detail/snapdock-screenshot-pdf-to-drive/pelchkjgofipbiafdahfneihimdjdeif" class="btn btn-white" target="_blank" rel="noopener">Install Extension</a>
+      </div>
+
+      <div class="install-card fade-up">
+        <div class="install-card-icon">🦊</div>
+        <h3>Firefox Add-ons</h3>
+        <p>Full support for Firefox on desktop and Android.</p>
+        <a href="https://github.com/himanshuramavat/snap-dock" class="btn btn-outline-white" target="_blank" rel="noopener">Coming Soon</a>
+      </div>
+
+      <div class="install-card fade-up">
+        <div class="install-card-icon">⚙️</div>
+        <h3>Build From Source</h3>
+        <p>Clone the repo, run <code style="color:rgba(255,255,255,.8)">npm install && npm run build</code>, and load the extension manually.</p>
+        <a href="https://github.com/himanshuramavat/snap-dock" class="btn btn-outline-white" target="_blank" rel="noopener">View Source</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <a href="#hero" class="footer-brand" aria-label="SnapDock home">
+      <img src="data:image/png;base64,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" alt="" width="24" height="24">
+      SnapDock
+    </a>
+    <div class="footer-links">
+      <a href="https://github.com/himanshuramavat/snap-dock" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/himanshuramavat/snap-dock/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a>
+      <a href="https://github.com/himanshuramavat/snap-dock/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      <a href="https://github.com/himanshuramavat/snap-dock/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Built with care by <a href="https://himanshuramavat.in/" target="_blank" rel="noopener" style="color:rgba(255,255,255,.7);text-decoration:underline">Himanshu Ramavat</a></span>
+    <span>&copy; 2026 SnapDock · MIT License</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ── Mobile hamburger ──────────────────────────────────── */
+  const toggle=document.getElementById('menuToggle');
+  const links=document.getElementById('navLinks');
+  toggle.addEventListener('click',function(){
+    const open=links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded',open);
+    const spans=toggle.querySelectorAll('span');
+    if(open){spans[0].style.transform='rotate(45deg) translate(5px,5px)';spans[1].style.opacity='0';spans[2].style.transform='rotate(-45deg) translate(5px,-5px)';}
+    else{spans[0].style.transform='';spans[1].style.opacity='';spans[2].style.transform='';}
+  });
+  /* close menu on link click */
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      links.classList.remove('open');toggle.setAttribute('aria-expanded','false');
+      const spans=toggle.querySelectorAll('span');
+      spans[0].style.transform='';spans[1].style.opacity='';spans[2].style.transform='';
+    });
+  });
+
+  /* ── Scroll: nav shadow + active link ──────────────────── */
+  const nav=document.querySelector('.nav');
+  const sections=document.querySelectorAll('section[id]');
+  const navAnchors=document.querySelectorAll('.nav-links a[href^="#"]');
+  function onScroll(){
+    nav.classList.toggle('scrolled',window.scrollY>10);
+    let current='';
+    sections.forEach(function(s){if(window.scrollY>=s.offsetTop-120)current=s.id;});
+    navAnchors.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+current);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+
+  /* ── Fade-up on scroll (IntersectionObserver) ──────────── */
+  if('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    const obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+    },{threshold:0.12});
+    document.querySelectorAll('.fade-up').forEach(function(el){obs.observe(el);});
+  }else{
+    document.querySelectorAll('.fade-up').forEach(function(el){el.classList.add('visible');});
+  }
+})();
+</script>
+</body>
+</html>
